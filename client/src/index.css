@@ -1,13 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Prata&family=Rethink+Sans:ital,wght@0,400..800;1,400..800&display=swap');
 @import "tailwindcss";
-@variant dark (&:where(.dark, .dark *))
+@custom-variant dark (&:where(.dark, .dark *));
+
 
 *{
   font-family: "Rethink Sans", sans-serif;
 }
 
 body{
-  @apply dark:bg-slate-950;
+  @apply dark:bg-slate-950 dark:text-white;
 }
 
 
