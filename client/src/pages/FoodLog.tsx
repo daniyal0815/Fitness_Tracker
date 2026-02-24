@@ -3,10 +3,11 @@ import { useAppContext } from "../context/AppContext"
 import type { FoodEntry, FormData } from "../types";
 import Card from "../components/ui/Card";
 import { mealColors, mealIcons, mealTypeOptions, quickActivitiesFoodLog } from "../assets/assets";
-import { Loader2Icon, PlusIcon, SparkleIcon, UtensilsCrossedIcon } from "lucide-react";
+import { Loader2Icon, PlusIcon, SparkleIcon, Trash2Icon, UtensilsCrossedIcon } from "lucide-react";
 import Input from "../components/ui/Input";
 import Select from "../components/ui/Select";
 import mockApi from "../assets/mockApi";
+import toast from "react-hot-toast";
 
 
 const FoodLog = () => {
@@ -39,6 +40,18 @@ const FoodLog = () => {
     setShowForm(false)
   }
 
+  const handleDelete =  async (documentId: string)=>{
+   try {
+    const confirm = window.confirm('Are you sure you want to delete this entry?');
+    if(!confirm) return;
+    await mockApi.foodLogs.delete(documentId)
+    setAllFoodLogs(prev=>prev.filter((e)=>e.documentId !== documentId))
+   } catch (error: any) {
+    console.log(error)
+    toast.error(error?.message || "Failed to delete food");
+   }
+  }
+
   const totalCalories = entries.reduce((sum, e) => sum + e.calories, 0)
 
   // Group entries by meal
@@ -52,6 +65,13 @@ const FoodLog = () => {
   const handleQuickAdd = (activityName: string) => {
     setFormData({ ...formData, mealType: activityName })
     setShowForm(true)
+  }
+
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>)=>{
+      const file = e.target.files?.[0];
+      if(!file) return;
+      // Implement image analysis
+
   }
 
   useEffect(() => {
@@ -124,6 +144,7 @@ const FoodLog = () => {
               </button>
 
               <input
+              onChange={handleImageChange}
                 type="file"
                 accept="image/*"
                 hidden
@@ -230,6 +251,25 @@ const FoodLog = () => {
                     <p className="text-sm text-slate-500 dark:text-slate-400">{groupedEntries[mealTypeKey].length} items</p>
                   </div>
                  </div>
+                 <p className="font-semibold text-slate-700 dark:text-slate-200">{mealCalories} kcal</p>
+                </div>
+                <div className="space-y-2">
+                  {groupedEntries[mealTypeKey].map((entry)=>(
+                   <div  key={entry.id} className="food-entry-item">
+                    <div className="flex-1">
+                      <p className="font-medium text-slate-700 dark:text-slate-200">{entry.name}</p>
+                      <p className="text-sm text-slate-400">{}</p>
+                    </div>  
+                    <div className="flex items-center gap-3">
+                     <span className="text-sm font-medium text-slate-600 dark:text-slate-300">{entry.calories} kcal</span>
+                    <button onClick={()=> handleDelete(entry?.documentId || '')} 
+                    className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors">
+                      <Trash2Icon className="w-4 h-4" />
+                    </button>
+                    </div>
+                   </div>
+
+                  ))}
                 </div>
               </Card>
             )
