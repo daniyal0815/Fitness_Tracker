@@ -8,6 +8,7 @@ import Button from "../components/ui/Button"
 import mockApi from "../assets/mockApi"
 import { ageRanges, goalOptions } from "../assets/assets"
 import Slider from "../components/ui/Slider"
+import api from "../configs/api"
 
 
 const Onboarding = () => {
@@ -46,10 +47,16 @@ const Onboarding = () => {
         createdAt: new Date().toISOString()
       };
       localStorage.setItem('fitnessUser', JSON.stringify(userData))
-      await mockApi.user.update(user?.id || "", userData as unknown as Partial<UserData>)
-      toast.success('Profile updated successfully')
-      setOnboardingCompleted(true)
-      fetchUser(user?.token || "")
+      try {
+        await api.put(`/api/users/${user?.id}`, userData)
+        toast.success('Profile updated successfully')
+        setOnboardingCompleted(true)
+        fetchUser(user?.token || "")
+
+      } catch (error: any) {
+       toast.error(error.message)
+      }
+
     }
   }
 
@@ -171,20 +178,20 @@ const Onboarding = () => {
                   </button>
                 ))}
               </div>
-              
+
               <div className="border-t border-slate-200 dark:border-slate-700 my-6 max-w-lg"></div>
               {/* Daily targets */}
-               <div className="space-y-8 max-w-lg">
+              <div className="space-y-8 max-w-lg">
                 <h3 className="text-md font-medium  text-slate-800  dark:text-white mb-4 ">Daily Targets</h3>
                 <div className="space-y-6">
-                   <Slider label="Daily Calorie Intake" min={120} max={4000} step={50} value={formData.dailyCalorieIntake}
-                    onChange={(v)=>updateField('dailyCalorieIntake', v)} unit="kcal" infoText="The total Calories you plan to consume each day." />
-                   
-                   <Slider label="Daily Calorie Burn" min={100} max={2000} step={50} value={formData.dailyCalorieBurn}
-                    onChange={(v)=>updateField('dailyCalorieBurn', v)} unit="kcal"
-                     infoText="The total Calories you ain to burn through exercise and activity each day." />
+                  <Slider label="Daily Calorie Intake" min={120} max={4000} step={50} value={formData.dailyCalorieIntake}
+                    onChange={(v) => updateField('dailyCalorieIntake', v)} unit="kcal" infoText="The total Calories you plan to consume each day." />
+
+                  <Slider label="Daily Calorie Burn" min={100} max={2000} step={50} value={formData.dailyCalorieBurn}
+                    onChange={(v) => updateField('dailyCalorieBurn', v)} unit="kcal"
+                    infoText="The total Calories you ain to burn through exercise and activity each day." />
                 </div>
-               </div>
+              </div>
 
             </div>
           )}
